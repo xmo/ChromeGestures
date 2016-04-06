@@ -507,6 +507,8 @@
       window.addEventListener("mousedown", GM, false);
       window.addEventListener("mousemove", GM, false);
       window.addEventListener("mouseup", GM, false);
+      window.addEventListener("click", GM, false);
+      window.addEventListener("focus", GM, false);
       if (config.superdrag) {
         window.addEventListener("dragstart", GM, false);
         window.addEventListener("drag", GM, false);
@@ -527,7 +529,13 @@
       document.addEventListener("contextmenu", GM, false);
     },
     handleEvent: function (e) {
+      function isGestureFlipForward(evt) {return evt.button === 2 && evt.buttons === 1};
+      function isGestureFlipBack(evt) {return evt.button === 0 && evt.buttons === 2}; 
       switch (e.type) {
+        case "focus":
+          // reset all states when tab activated
+          GM._isMousedown = GM._isMousemove = GM._isLeftMousedown = GM.notdrag = false;
+          break;
         case "mousedown":
           if (e.button === 2 && !GM._isLeftMousedown) {
             if (window.getSelection().toString().length > 0) {
@@ -536,13 +544,12 @@
             GM._isMousedown = true;
             GM._startGuesture(e);
           } else if (e.button === 0 && GM._isMousedown && !GM._isMousemove) {
-            GM.flip_case = '#FlipBack';
+            // GM.flip_case = '#FlipBack';
           } else if (e.button === 2 && GM._isLeftMousedown && !GM._isMousemove) {
-            GM.flip_case = '#FlipForward';
+            // GM.flip_case = '#FlipForward';
           } else if (e.button === 0 && GM.isLeft && !e.target.draggable) {
             GM._isLeftMousedown = true;
             GM.notdrag = true;
-            //console.log(e.target , );
             GM._startGuesture(e);
           } else if (e.button === 0) {
             GM._isLeftMousedown = true;
@@ -643,14 +650,24 @@
             } while (target = target.parentElement);
           }
           break;
+        case "click":
+          if (isGestureFlipBack(e)) {
+              GM.flip_case = "#FlipBack";
+              if (GM._stopGuesture(e)) { e.preventDefault(); }
+          }
+          break;
         case "contextmenu":
           if (GM.wheel_action) {
             GM.wheel_action = false;
             e.preventDefault();
             GM.title_end();
           }
-          var r;
-          if (r = GM._stopGuesture(e)) {
+          if (isGestureFlipForward(e)) {
+              GM.flip_case = "#FlipForward";
+              if (GM._stopGuesture(e)) { e.preventDefault(); }
+              // TODO suppress contextmenu when mouseup on a new tab
+          }
+          if (GM._stopGuesture(e)) {
             e.preventDefault();
           }
           break;
