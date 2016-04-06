@@ -14,7 +14,9 @@ this.GesturesInfo = {
     "RUR": {"name": "select last tab", args: []},
     "LUL": {"name": "select first tab", args: []},
     "#FlipBack": {"name": "back", args: []},
-    "#FlipForward": {"name": "forward", args: []}
+    "#FlipForward": {"name": "forward", args: []},
+    "#WheelUp": {"name": "back", args: []},
+    "#WheelDown": {"name": "forward", args: []}
   },
   linkdrag_actions: {
     "D": {"name": "open in new tab", args: []},

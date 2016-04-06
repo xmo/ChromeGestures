@@ -531,6 +531,8 @@
     handleEvent: function (e) {
       function isGestureFlipForward(evt) {return evt.button === 2 && evt.buttons === 1};
       function isGestureFlipBack(evt) {return evt.button === 0 && evt.buttons === 2}; 
+      function isGestureWheelUp(evt) {return evt.button === 0 && evt.buttons === 2 && evt.deltaY < 0}; 
+      function isGestureWheelDown(evt) {return evt.button === 0 && evt.buttons === 2 && evt.deltaY > 0}; 
       switch (e.type) {
         case "focus":
           // reset all states when tab activated
@@ -611,6 +613,12 @@
             }
             GM.wheel_action = true;
             e.preventDefault();
+          } else if (isGestureWheelUp(e)) {
+              GM.wheel_case = "#WheelUp";
+              if (GM._stopGuesture(e)) { e.preventDefault(); }
+          } else if (isGestureWheelDown(e)) {
+              GM.wheel_case = "#WheelDown";
+              if (GM._stopGuesture(e)) { e.preventDefault(); }
           } else {
             var target = e.target, targets = GM._scroll_targets, scroll_object;
             var dir = e.wheelDeltaY > 0 ? 'up' : 'down';
@@ -869,6 +877,9 @@
       if (GM.flip_case) {
         GM._directionChain = GM.flip_case;
         GM.flip_case = false;
+      } else if (GM.wheel_case) {
+        GM._directionChain = GM.wheel_case;
+        GM.wheel_case = false;
       }
       var act = GM.normal_actions[GM._directionChain];
       var action = act && ACTION[act.name];
